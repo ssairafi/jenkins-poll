@@ -1,5 +1,5 @@
 package pkg;
-/****
+/*****
  * A utility.
  */
 public class X {
