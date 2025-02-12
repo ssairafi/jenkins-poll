@@ -1,9 +1,27 @@
-podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven', command: 'sleep', args: 'infinity')]) {
-  node(POD_LABEL) {
-    checkout scm
-    container('maven') {
-      sh 'mvn -B -ntp -Dmaven.test.failure.ignore verify'
+pipeline {
+  agent any
+  tools {
+    maven "m3"
+  }
+  triggers {
+    githubPush() // Automatically triggers on GitHub push events
+  }
+  stages {
+    stage('Checkout Code') {
+      steps {
+        git branch: 'main', url: 'https://github.com/AbdullahKhan33/jenkins-poll.git'
+      }
     }
-    junit '**/target/surefire-reports/TEST-*.xml'
+    
+    stage('Build with Maven') {
+      steps {
+        sh "mvn clean package -DskipTests"
+      }
+    }
+  }
+  post {
+    always {
+      archiveArtifacts 'target/*.jar' // Only archive the JAR file
+    }
   }
 }
